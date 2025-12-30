@@ -6,7 +6,7 @@ const user = Schema.create({
   name: String,
   email: String,
   password: String, 
-  role: ["teacher" ,"student"]
+  role: String
 })
 
 const classes = Schema.create({
@@ -18,7 +18,7 @@ const classes = Schema.create({
 const attendance = Schema.create({
     classId: mongoose.Types.ObjectId,
     studentId: mongoose.Types.ObjectId,
-    status: ["present", "absent"]
+    status: String
 })
 
 
