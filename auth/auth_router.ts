@@ -24,7 +24,7 @@ auth_router.post('/signup', async(req, res) => {
     })
 
     if(user) {
-        res.json(APIResponse.error(`User aleady exists`))
+        res.json(APIResponse.error(`Email already exists`))
         return 
     }
 
@@ -38,10 +38,10 @@ auth_router.post('/signup', async(req, res) => {
     })
 
     res.json(APIResponse.success({
-        user_id: new_user._id
+        ...new_user
     }))
 
-} )
+})
 
 auth_router.post('/login', async(req, res)=> {
     const {payload} = req.body;
@@ -68,7 +68,7 @@ auth_router.post('/login', async(req, res)=> {
     const match_password = await bcrypt.compare(password, db_password)
 
     if(!match_password) {
-        res.json(APIResponse.error(`Invalid credentionals`))
+        res.json(APIResponse.error(`Invalid email or password`))
         return
     }
 
@@ -86,7 +86,9 @@ auth_router.post('/login', async(req, res)=> {
 
 })
 
-auth_router.post('/me', async(req, res)=> {})
+auth_router.post('/me', async(req, res)=> {
+    
+})
 
 
 export default auth_router;
