@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { login_schema, signin_schema } from "./types";
-import { APIResponse } from "../class/responses";
+import { login_schema, signin_schema } from "./zod_schema";
+import { APIResponse } from "../helpers/responses";
 import { user_modal } from "../db/schema";
 import bcrypt from 'bcrypt';
 import { JWT_SEC, PASSWORD_HASH_SALT_ROUNDS } from "../config";
@@ -39,7 +39,7 @@ auth_router.post('/signup', async(req, res) => {
     })
 
     res.json(APIResponse.success({
-        ...new_user
+        user_id: new_user._id
     }))
 
 })
@@ -87,7 +87,7 @@ auth_router.post('/login', async(req, res)=> {
 
 })
 
-auth_router.post('/me', auth_moddleware, async(req, res)=> {
+auth_router.get('/me', auth_moddleware, async(req, res)=> {
     const { user_id } = req;
 
     const user = await user_modal.findOne({

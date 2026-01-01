@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { APIResponse } from "../class/responses";
+import { APIResponse } from "../helpers/responses";
 import jwt from 'jsonwebtoken';
 import { JWT_SEC } from "../config";
 
@@ -18,7 +18,8 @@ export const auth_moddleware = (req: Request, res: Response, next: NextFunction)
         return;
     }
 
-    req.user_id = is_valid_token.userId
+    req.user_id = is_valid_token.userId;
+    req.role = is_valid_token.role;
 
     next();
 }

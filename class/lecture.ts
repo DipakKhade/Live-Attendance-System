@@ -1,6 +1,6 @@
 import ws, { WebSocketServer, type Server } from 'ws';
-import { SERVER_PORT } from '../config';
-
+import { WEBSOCKET_SERVER_PORT } from '../config';
+import http from 'http';
 
 interface activeSessionInterface {
     classId: string,
@@ -10,7 +10,7 @@ interface activeSessionInterface {
 
 export class LectureClass {
     private static instance: LectureClass;
-    ws: Server<typeof ws>| null = null;
+    wss: Server<typeof ws>| null = null;
 
     static activeSession: activeSessionInterface = {
         classId: '',
@@ -19,7 +19,7 @@ export class LectureClass {
     };
 
     constructor() {
-        this.set_up_socket_connection()
+
     }
 
     static get_instance() {
@@ -31,11 +31,28 @@ export class LectureClass {
         }
     }
 
-    set_up_socket_connection() {
-        this.ws = new WebSocketServer({
-            port: SERVER_PORT,
+    attach(server: http.Server) {
+        this.wss = new WebSocketServer({ server })
+    
+        this.wss.on('connection', (socket) => {
+          console.log('WS client connected')
+    
+          socket.send(
+            JSON.stringify({
+              type: 'ACTIVE_SESSION',
+              payload: LectureClass.activeSession,
+            })
+          )
+    
+          socket.on('message', (data) => {
+            const msg = JSON.parse(data.toString())
+            console.log('WS message:', msg)
+          })
+    
+          socket.on('close', () => {
+            console.log('WS client disconnected')
+          })
         })
-        console.log('soc')
     }
 
     static get_active_session() {
