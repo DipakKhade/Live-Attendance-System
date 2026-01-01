@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { APIResponse } from "../helpers/responses";
 import jwt from 'jsonwebtoken';
-import { JWT_SEC } from "../config";
+import { SERVER_CONFIG } from "../config";
 
 export const auth_moddleware = (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.token as string;
@@ -11,7 +11,7 @@ export const auth_moddleware = (req: Request, res: Response, next: NextFunction)
         return;
     }
 
-    const is_valid_token = jwt.verify(token, JWT_SEC) as {userId: string, role: string}
+    const is_valid_token = jwt.verify(token, SERVER_CONFIG.JWT_SEC) as {userId: string, role: string}
 
     if(!is_valid_token) {
         res.json(APIResponse.error(`invalid token!`));

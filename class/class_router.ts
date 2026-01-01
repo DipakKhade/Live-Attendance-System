@@ -70,5 +70,25 @@ class_router.post('/:id/add-student', verify_teacher_middleware, async(req, res)
     return;
 })
 
+class_router.get('/:id', async (req, res) => {
+    const class_id = req.params.id;
+
+    const class_doc = await classes_modal.findOne({
+        _id: new mongoose.Types.ObjectId(class_id)
+    })
+
+    const allowd_ids = [...class_doc!.studentIds, class_doc?.teacherId]
+
+    if(!allowd_ids.includes(new mongoose.Types.ObjectId(req.user_id))) {
+        res.json(APIResponse.error(`Forbidden, access required`))
+        return;
+    }
+
+    
+
+    res.json(APIResponse.success({}))
+    return;
+})
+
 
 export default class_router;

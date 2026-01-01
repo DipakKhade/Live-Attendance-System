@@ -1,5 +1,4 @@
 import ws, { WebSocketServer, type Server } from 'ws';
-import { WEBSOCKET_SERVER_PORT } from '../config';
 import http from 'http';
 
 interface activeSessionInterface {

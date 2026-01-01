@@ -1,5 +1,5 @@
 import express, { type NextFunction, type Request, type Response } from 'express'
-import { SERVER_PORT } from './config';
+import { SERVER_CONFIG } from './config';
 import auth_router from './auth/auth_router';
 import { APIResponse } from './helpers/responses';
 import { connect_to_db } from './db';
@@ -29,4 +29,4 @@ const server = http.createServer(app);
 
 LectureClass.get_instance().attach(server);
 
-server.listen(SERVER_PORT, ()=> console.log(`HTTP And Web Socket Server are up on Port ${SERVER_PORT}`))
+server.listen(SERVER_CONFIG.SERVER_PORT, ()=> console.log(`HTTP And Web Socket Server are up on Port ${SERVER_CONFIG.SERVER_PORT}`))

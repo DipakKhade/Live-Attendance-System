@@ -3,7 +3,7 @@ import { login_schema, signin_schema } from "./zod_schema";
 import { APIResponse } from "../helpers/responses";
 import { user_modal } from "../db/schema";
 import bcrypt from 'bcrypt';
-import { JWT_SEC, PASSWORD_HASH_SALT_ROUNDS } from "../config";
+import { SERVER_CONFIG } from "../config";
 import jwt from 'jsonwebtoken';
 import { auth_moddleware } from "../middlewares/auth_middleware";
 
@@ -29,7 +29,7 @@ auth_router.post('/signup', async(req, res) => {
         return 
     }
 
-    const hased_password = await bcrypt.hash(password, PASSWORD_HASH_SALT_ROUNDS);
+    const hased_password = await bcrypt.hash(password, SERVER_CONFIG.PASSWORD_HASH_SALT_ROUNDS);
 
     const new_user = await user_modal.create({
       name,
@@ -77,7 +77,7 @@ auth_router.post('/login', async(req, res)=> {
     token = jwt.sign({
         userId: user._id,
         role: user.role
-    }, JWT_SEC)
+    }, SERVER_CONFIG.JWT_SEC)
 
     res.json(APIResponse.success({
         token
