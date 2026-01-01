@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { APIResponse } from "../classes/responses";
+import { APIResponse } from "../class/responses";
 import jwt from 'jsonwebtoken';
 import { JWT_SEC } from "../config";
 

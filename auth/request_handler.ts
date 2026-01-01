@@ -1,4 +1,4 @@
-import { APIResponse } from "../classes/responses";
+import { APIResponse } from "../class/responses";
 
 export const request_handler = async(handler: ()=>any ) => {
     try {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login_schema, signin_schema } from "./types";
-import { APIResponse } from "../classes/responses";
+import { APIResponse } from "../class/responses";
 import { user_modal } from "../db/schema";
 import bcrypt from 'bcrypt';
 import { JWT_SEC, PASSWORD_HASH_SALT_ROUNDS } from "../config";
