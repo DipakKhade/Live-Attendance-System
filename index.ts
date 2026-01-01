@@ -1,8 +1,12 @@
 import express, { type NextFunction, type Request, type Response } from 'express'
 import { SERVER_PORT } from './config';
 import auth_router from './auth/auth_router';
-import { APIResponse } from './class/responses';
+import { APIResponse } from './helpers/responses';
 import { connect_to_db } from './db';
+import class_router from './class/class_router';
+import { auth_moddleware } from './middlewares/auth_middleware';
+import http from 'http';
+import { LectureClass } from './class/lecture';
 
 const app = express();
 
@@ -12,7 +16,7 @@ app.use(express.json());
 
 app.use('/api/v1/auth', auth_router);
 
-// app.use('/api/v1/class', class_router);
+app.use('/api/v1/class', auth_moddleware, class_router);
 
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -20,4 +24,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     return 
 });
 
-app.listen(SERVER_PORT, ()=> console.log(`Server is up on Port ${SERVER_PORT}`))
+
+const server = http.createServer(app);
+
+LectureClass.get_instance().attach(server);
+
+server.listen(SERVER_PORT, ()=> console.log(`HTTP And Web Socket Server are up on Port ${SERVER_PORT}`))
