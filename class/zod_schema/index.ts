@@ -5,3 +5,6 @@ export const add_class_schema = z.object({
     student_ids: z.array(z.string()).optional()
 })
 
+export const add_class_student = z.object({
+    student_id: z.string()
+})
