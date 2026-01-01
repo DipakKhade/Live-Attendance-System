@@ -5,6 +5,7 @@ import { user_modal } from "../db/schema";
 import bcrypt from 'bcrypt';
 import { JWT_SEC, PASSWORD_HASH_SALT_ROUNDS } from "../config";
 import jwt from 'jsonwebtoken';
+import { auth_moddleware } from "../middlewares/auth_middleware";
 
 const auth_router = Router();
 
@@ -86,8 +87,19 @@ auth_router.post('/login', async(req, res)=> {
 
 })
 
-auth_router.post('/me', async(req, res)=> {
-    
+auth_router.post('/me', auth_moddleware, async(req, res)=> {
+    const { user_id } = req;
+
+    const user = await user_modal.findOne({
+        _id: user_id
+    })
+
+    res.json(APIResponse.success({
+        _id: user?._id,
+        name: user?.name,
+        email: user?.email,
+        role: user?.role
+    }))
 })
 
 
