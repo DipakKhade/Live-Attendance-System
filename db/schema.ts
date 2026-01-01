@@ -1,5 +1,4 @@
 import { Schema } from "mongoose";
-import type { ObjectId } from "mongoose";
 import mongoose from "mongoose";
 
 const user = Schema.create({
