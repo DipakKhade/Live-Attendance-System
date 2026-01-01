@@ -100,6 +100,8 @@ auth_router.post('/me', auth_moddleware, async(req, res)=> {
         email: user?.email,
         role: user?.role
     }))
+
+    return;
 })
 
 

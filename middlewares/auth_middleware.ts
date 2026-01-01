@@ -17,7 +17,6 @@ export const auth_moddleware = (req: Request, res: Response, next: NextFunction)
         res.json(APIResponse.error(`invalid token!`));
         return;
     }
-    console.log('is_valid_token---', is_valid_token)
 
     req.user_id = is_valid_token.userId
 
