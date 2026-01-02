@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { APIResponse } from "../helpers/responses";
-import { add_class_schema, add_class_student } from "./zod_schema";
+import { add_class_schema, add_class_student_schema, start_class_schema } from "./zod_schema";
 import { verify_teacher_middleware } from "../middlewares/verify_teacher_middleware";
-import { classes_modal } from "../db/schema";
-import mongoose, { type ObjectId } from "mongoose";
+import { classes_modal, user_modal } from "../db/schema";
+import mongoose from "mongoose";
+import { verify_student_middleware } from "../middlewares/verify_student_middleware";
+import { LectureClass } from "./lecture";
 
 const class_router = Router();
 
@@ -37,7 +39,7 @@ class_router.post('/:id/add-student', verify_teacher_middleware, async(req, res)
     const {payload} = req.body;
     const class_id = req.params.id;
 
-    const parsed_payload = add_class_student.safeParse(payload);
+    const parsed_payload = add_class_student_schema.safeParse(payload);
 
     if(parsed_payload.error) {
         res.json(APIResponse.error(`Invalid request schema`))
@@ -70,25 +72,103 @@ class_router.post('/:id/add-student', verify_teacher_middleware, async(req, res)
     return;
 })
 
-class_router.get('/:id', async (req, res) => {
+class_router.get('/get_class/:id', async (req, res) => {
     const class_id = req.params.id;
 
     const class_doc = await classes_modal.findOne({
         _id: new mongoose.Types.ObjectId(class_id)
     })
 
-    const allowd_ids = [...class_doc!.studentIds, class_doc?.teacherId]
+    const allowd_ids = [...(class_doc!.studentIds).map(x=> x.toString()), class_doc?.teacherId?.toString()]
 
-    if(!allowd_ids.includes(new mongoose.Types.ObjectId(req.user_id))) {
+    console.log(allowd_ids)
+
+    console.log(req.user_id)
+
+    if(!allowd_ids.includes(req.user_id)) {
         res.json(APIResponse.error(`Forbidden, access required`))
         return;
     }
 
-    
+    let result = [];
 
-    res.json(APIResponse.success({}))
+    for(let x of class_doc!.studentIds) {
+        const student = await user_modal.findOne({
+            _id: x
+        })
+
+        result.push({
+            _id: student?._id,
+            name: student?.name,
+            email: student?.email
+        })
+    }
+
+    res.json(APIResponse.success({
+        _id: class_doc?._id,
+        class_name: class_doc?.className,
+        teacher_id: class_doc?.teacherId,
+        students: [...result]
+    }))
     return;
 })
 
+class_router.get('/students', verify_teacher_middleware, async (req, res) => {
+    const data = await user_modal.find({
+        role: 'student'
+    })
+
+    res.json(APIResponse.success([...data.map(x => {
+        return {
+            _id: x._id,
+            name: x.name,
+            email: x.email
+        }
+    })]))
+
+    return;
+})
+
+
+class_router.get('/:id/my-attendance', verify_student_middleware, async(req, res) => {
+
+    const attendance = LectureClass.get_active_session().attendance;
+
+    const user_id = req.user_id;
+
+    res.json(APIResponse.success({
+        class_id: req.params.id,
+        status: attendance.hasOwnProperty(user_id!) ? "present" : null
+    }))
+})
+
+class_router.post('/attendance/start', verify_teacher_middleware, async(req, res) => {
+    const {payload} = req.body;    
+
+    const parsed_payload = start_class_schema.safeParse(payload);
+
+    if(parsed_payload.error) {
+        res.json(APIResponse.error(`Invalid request schema`))
+        return;
+    }
+
+    const {class_id} = parsed_payload.data;
+
+    const start_at = new Date();
+
+    const update_class = await classes_modal.updateOne({
+        _id: new mongoose.Types.ObjectId(class_id)
+        
+    }, {
+        $set: {
+            startedAt: start_at
+        }
+    })
+
+    res.json(APIResponse.success({
+        class_id,
+        start_at
+    }))
+})
 
 export default class_router;
