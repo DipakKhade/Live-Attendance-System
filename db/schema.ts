@@ -11,7 +11,8 @@ const user = Schema.create({
 const classes = Schema.create({
     className: String,
     teacherId: mongoose.Types.ObjectId, 
-    studentIds: [mongoose.Types.ObjectId] 
+    studentIds: [mongoose.Types.ObjectId], 
+    startedAt: String
 })
 
 const attendance = Schema.create({
