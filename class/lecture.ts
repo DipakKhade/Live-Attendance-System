@@ -53,7 +53,7 @@ export class LectureClass {
             socket.on('message', (data) => {
                 const msg = JSON.parse(data.toString()) as unknown as {event: string, data: {student_id: string, status: 'present' | 'absent'}};
                 switch(msg.event) {
-                    case 'ATTENDANCE_MARKED' : this.mark_attendance(data); break;
+                    case 'ATTENDANCE_MARKED' : this.mark_attendance(msg.data); break;
                     case 'TODAY_SUMMARY' : {} break;
                     case 'MY_ATTENDANCE' : {} break;
                     case 'DONE' : {} break;
