@@ -1,5 +1,8 @@
 import ws, { WebSocketServer, type Server } from 'ws';
 import http from 'http';
+import url from 'url';
+import { SERVER_CONFIG } from '../config';
+import jwt from 'jsonwebtoken';
 
 interface activeSessionInterface {
     classId: string,
@@ -32,30 +35,54 @@ export class LectureClass {
 
     attach(server: http.Server) {
         this.wss = new WebSocketServer({ server })
-    
-        this.wss.on('connection', (socket) => {
-          console.log('WS client connected')
-    
-          socket.send(
-            JSON.stringify({
-              type: 'ACTIVE_SESSION',
-              payload: LectureClass.activeSession,
+
+        
+        this.wss.on('connection', (socket, req) => {
+            console.log('WS client connected')
+            
+            const params = url.parse(req.url!, true).query;
+            const result = this.decode_jwt(params.token as string)
+
+            if(!result.success) {
+                socket.close()
+            }
+
+            socket.send(
+                JSON.stringify({
+                type: 'ACTIVE_SESSION',
+                payload: LectureClass.activeSession,
+                })
+            )
+        
+            socket.on('message', (data) => {
+                const msg = JSON.parse(data.toString())
+                console.log('WS message:', msg)
             })
-          )
-    
-          socket.on('message', (data) => {
-            const msg = JSON.parse(data.toString())
-            console.log('WS message:', msg)
-          })
-    
-          socket.on('close', () => {
-            console.log('WS client disconnected')
-          })
-        })
+        
+            socket.on('close', () => {
+                console.log('WS client disconnected')
+            })
+            })
     }
 
     static get_active_session() {
         return LectureClass.activeSession;
+    }
+
+    decode_jwt(token: string) {
+        let success = false;
+        let user_id= null;
+        jwt.verify(token, SERVER_CONFIG.JWT_SEC, (err: any, decode: any)=> {
+            if(decode) {
+                success = true
+                user_id = decode.userId;
+            } else {
+                    success = false
+            } 
+        })
+        return {
+            success, user_id
+        };
     }
 
 }
