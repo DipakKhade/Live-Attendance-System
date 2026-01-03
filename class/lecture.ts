@@ -41,22 +41,25 @@ export class LectureClass {
             console.log('WS client connected')
             
             const params = url.parse(req.url!, true).query;
-            const result = this.decode_jwt(params.token as string)
+            const result = this.decode_jwt(params.token as string);
 
             if(!result.success) {
-                socket.close()
+                socket.send(JSON.stringify({
+                    error: 'Auth Failed'
+                }))
+                socket.close();
             }
 
-            socket.send(
-                JSON.stringify({
-                type: 'ACTIVE_SESSION',
-                payload: LectureClass.activeSession,
-                })
-            )
-        
             socket.on('message', (data) => {
-                const msg = JSON.parse(data.toString())
-                console.log('WS message:', msg)
+                const msg = JSON.parse(data.toString()) as unknown as {event: string, data: {student_id: string, status: 'present' | 'absent'}};
+                switch(msg.event) {
+                    case 'ATTENDANCE_MARKED' : this.mark_attendance(data); break;
+                    case 'TODAY_SUMMARY' : {} break;
+                    case 'MY_ATTENDANCE' : {} break;
+                    case 'DONE' : {} break;
+                    default: 
+                        console.log('Event not found', msg.event);
+                }
             })
         
             socket.on('close', () => {
@@ -83,6 +86,14 @@ export class LectureClass {
         return {
             success, user_id
         };
+    }
+
+    mark_attendance(data: {student_id: string, status: 'present' | 'absent'}) {
+
+    }
+
+    get_todays_summary() {
+
     }
 
 }
