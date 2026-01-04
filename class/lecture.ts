@@ -53,10 +53,23 @@ export class LectureClass {
             socket.on('message', (data) => {
                 const msg = JSON.parse(data.toString()) as unknown as {event: string, data: {student_id: string, status: 'present' | 'absent'}};
                 switch(msg.event) {
-                    case 'ATTENDANCE_MARKED' : this.mark_attendance(msg.data); break;
-                    case 'TODAY_SUMMARY' : {} break;
-                    case 'MY_ATTENDANCE' : {} break;
-                    case 'DONE' : {} break;
+                    case 'ATTENDANCE_MARKED' : {
+                        if(result.role !== 'teacher') {
+                            socket.send(JSON.stringify({
+                                "event": "ERROR",
+                                "data": {
+                                    "message": "Forbidden, teacher event only"
+                                }
+                            }))
+                            return;
+                        } else {
+                            this.mark_attendance(msg.data)
+                        }
+                        break;
+                    };
+                    case 'TODAY_SUMMARY' :  break;
+                    case 'MY_ATTENDANCE' :  break;
+                    case 'DONE' :  break;
                     default: 
                         console.log('Event not found', msg.event);
                 }
@@ -75,16 +88,18 @@ export class LectureClass {
     decode_jwt(token: string) {
         let success = false;
         let user_id= null;
+        let role = null;
         jwt.verify(token, SERVER_CONFIG.JWT_SEC, (err: any, decode: any)=> {
             if(decode) {
                 success = true
                 user_id = decode.userId;
+                role = decode.role;
             } else {
                     success = false
             } 
         })
         return {
-            success, user_id
+            success, user_id, role
         };
     }
 
