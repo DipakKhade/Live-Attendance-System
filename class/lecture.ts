@@ -104,7 +104,8 @@ export class LectureClass {
     }
 
     mark_attendance(data: {student_id: string, status: 'present' | 'absent'}) {
-
+        LectureClass.activeSession.attendance[data.student_id] = data.status;
+        return;
     }
 
     get_todays_summary() {
