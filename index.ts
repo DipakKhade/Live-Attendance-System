@@ -21,7 +21,7 @@ app.use('/api/v1/class', auth_moddleware, class_router);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.json(APIResponse.error(`error occureed in ${req.path} route, error: ${err.message}`))
-    return 
+    return
 });
 
 
@@ -29,4 +29,4 @@ const server = http.createServer(app);
 
 LectureClass.get_instance().attach(server);
 
-server.listen(SERVER_CONFIG.SERVER_PORT, ()=> console.log(`HTTP And Web Socket Server are up on Port ${SERVER_CONFIG.SERVER_PORT}`))
+server.listen(SERVER_CONFIG.SERVER_PORT, () => console.log(`HTTP And Web Socket Server are up on Port ${SERVER_CONFIG.SERVER_PORT}`))
